@@ -1,0 +1,21 @@
+site_name: Despliegue Jedi–Sith
+theme:
+  name: material
+  language: es
+  palette:
+    - scheme: default
+      primary: 'dark blue'
+      accent: 'light blue'
+    - scheme: slate
+      primary: 'blue grey'
+      accent: 'light blue'
+      toggle:
+        icon: material/weather-night
+        name: Modo oscuro
+nav:
+  - Inicio: index.md
+  - Entorno y herramientas: entorno.md
+  - Comandos utilizados: comandos.md
+  - Configuración: configuracion.md
+  - Evidencias: evidencias.md
+  - Reflexión final: reflexion.md
