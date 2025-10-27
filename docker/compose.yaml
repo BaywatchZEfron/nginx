@@ -1,0 +1,10 @@
+services:
+  web:
+    image: nginx:alpine
+    container_name: nginx_starwars
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    volumes:
+      - ../nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../public:/usr/share/nginx/html:ro
