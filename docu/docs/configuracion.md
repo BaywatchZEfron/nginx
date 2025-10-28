@@ -1,4 +1,4 @@
-### ⚙️ `configuracion.md`
+### `configuracion.md`
 
 ````markdown
 # Explicaciones de configuración

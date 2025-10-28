@@ -1,4 +1,4 @@
-# 📸 Evidencias del despliegue “Jedi–Sith”
+# Evidencias del despliegue “Jedi–Sith”
 
 En esta sección se presentan las capturas de pantalla correspondientes a cada fase del proceso de despliegue del servidor web, demostrando el correcto funcionamiento y configuración del entorno.
 
