@@ -1,11 +1,11 @@
-# 📸 Evidencias del despliegue “Jedi–Sith”
+```markdown
+# Evidencias del despliegue “Jedi–Sith” (Ubuntu Server + Nginx)
 
-En esta sección se presentan las capturas de pantalla correspondientes a cada fase del proceso de despliegue del servidor web, demostrando el correcto funcionamiento y configuración del entorno.
+En esta sección se documentan las capturas de pantalla del proceso de instalación, configuración y verificación del servidor web en **Ubuntu Server 24.04**.
 
 ---
 
 ## Fase 1 — Preparación del entorno web
-
 **Descripción:**  
 Se creó la estructura de carpetas `public/` y `config/` para almacenar los archivos estáticos (HTML, CSS, JS) de las aplicaciones “Jedi” y “Sith”.
 
@@ -19,21 +19,17 @@ Se creó la estructura de carpetas `public/` y `config/` para almacenar los arch
 ## Fase 2 — Instalación del servidor web
 
 **Descripción:**  
-Se desplegó un contenedor Nginx basado en la imagen oficial `nginx:alpine`.  
-Se comprobó que el contenedor se ejecuta correctamente con el comando `docker ps`.
+Instalación y activación del servicio Nginx en Ubuntu Server.
+````bash
+sudo apt update
+sudo apt install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+````
 
+*> systemctl running:*
 
-*> docker pull:*
-
-![docker pull](images/Screenshot_2.png)
-
-*> docker ps:*
-
-![docker ps](images/Screenshot_3.png)
-
-*> docker exec:*
-
-![docker exec](images/Screenshot_4.png)
+![systemctl running](images/Screenshot_2.png)
 
 ---
 

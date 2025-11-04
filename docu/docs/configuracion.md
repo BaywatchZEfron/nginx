@@ -1,105 +1,112 @@
-### ⚙️ `configuracion.md`
+# Configuración del servidor Nginx (Ubuntu Server)
 
-````markdown
-# Explicaciones de configuración
+## Instalación
 
-## Configuración del servidor Nginx
+El servidor web se desplegó sobre **Ubuntu Server 24.04 LTS** en una máquina virtual (VirtualBox). Se eligió Ubuntu Server por su ligereza y estabilidad. El servidor seleccionado fue **Nginx** por su alto rendimiento en archivos estáticos y bajo consumo de recursos.
 
-El archivo `nginx.conf` se configuró para servir dos sitios estáticos diferentes usando bloques `server`:
-
-```nginx
-events {}
-
-http {
-    server {
-        listen 8080;
-        server_name jedi.local;
-
-        root /usr/share/nginx/html/jedi;
-        index index.html;
-
-        location / {
-            try_files $uri $uri/ =404;
-        }
-    }
-
-    server {
-        listen 9090;
-        server_name sith.local;
-
-        root /usr/share/nginx/html/sith;
-        index index.html;
-
-        location / {
-            try_files $uri $uri/ =404;
-        }
-    }
-}
-````
-
-### Descripción técnica
-
-* **listen 8080 / 9090:** define el puerto en el que escucha cada sitio.
-* **server_name:** asigna el dominio local personalizado (configurado en `/etc/hosts`).
-* **root:** ruta donde se encuentran los archivos HTML, CSS y JS de cada sitio.
-* **location /** y `try_files`: garantizan que solo se sirvan archivos existentes (evita errores 404 falsos).
-* **index:** especifica el archivo principal de cada sitio.
-
----
-
-## Configuración de dominios locales
-
-Se añadió lo siguiente en el archivo `/etc/hosts` del sistema local:
-
-```
-127.0.0.1 jedi.local
-127.0.0.1 sith.local
-```
-
-Esto permite que ambos dominios respondan como si fueran sitios independientes en el navegador.
-
----
-
-## Docker Compose
-
-El archivo `docker-compose.yml` se utilizó para automatizar la creación del contenedor y la construcción del entorno:
-
-```yaml
-version: "3"
-services:
-  nginx:
-    container_name: nginx_starwars
-    image: nginx:alpine
-    ports:
-      - "8080:8080"
-      - "9090:9090"
-    volumes:
-      - ./html:/usr/share/nginx/html
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-```
-
-### Explicación:
-
-* **container_name:** nombre identificativo del contenedor.
-* **image:** usa la imagen ligera de Nginx basada en Alpine.
-* **ports:** mapea los puertos del host a los del contenedor.
-* **volumes:** vincula las carpetas locales con el contenedor para actualizar los contenidos sin reconstruir.
-
----
-
-## Verificación
-
-Una vez ejecutado:
+### Comandos de instalación
 
 ```bash
-docker compose up --build
+sudo apt update
+sudo apt install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+# Verificar estado del servicio
+systemctl status nginx   # debe aparecer: active (running)
 ```
 
-Se puede acceder a:
+## Configuración del servicio
 
-* **[http://jedi.local:8080](http://jedi.local:8080)**
-* **[http://sith.local:9090](http://sith.local:9090)**
+Se configuraron dos sitios estáticos independientes (Jedi y Sith) mediante bloques `server` en `/etc/nginx/nginx.conf`:
 
-Ambos sitios funcionan correctamente y muestran sus estilos respectivos (Jedi en verde/azul, Sith en tonos oscuros).
+```nginx
+worker_processes 1;
 
+events {
+  worker_connections 1024;
+}
 
+http {
+  include       mime.types;
+  default_type  application/octet-stream;
+
+  sendfile        on;
+  keepalive_timeout  65;
+
+  server {
+    listen 8080;
+    server_name jedi.local;
+    root /usr/share/nginx/html/jedi;
+    index index.html;
+
+    location /css/ {
+      alias /usr/share/nginx/html/jedi/css/;
+    }
+
+    location /dist/ {
+      alias /usr/share/nginx/html/jedi/dist/;
+    }
+
+    location / {
+      try_files $uri $uri/ =404;
+    }
+  }
+
+  server {
+    listen 9090;
+    server_name sith.local;
+    root /usr/share/nginx/html/sith;
+    index index.html;
+
+    location /css/ {
+      alias /usr/share/nginx/html/sith/css/;
+    }
+
+    location /dist/ {
+      alias /usr/share/nginx/html/sith/dist/;
+    }
+
+    location / {
+      try_files $uri $uri/ =404;
+    }
+  }
+}
+```
+
+## Directorios de los sitios
+
+Rutas de los archivos HTML/CSS/JS:
+
+- `/usr/share/nginx/html/jedi`
+- `/usr/share/nginx/html/sith`
+
+Comandos usados:
+
+```bash
+sudo mkdir -p /usr/share/nginx/html/{jedi,sith}
+sudo cp -r ./public/jedi/* /usr/share/nginx/html/jedi/
+sudo cp -r ./public/sith/* /usr/share/nginx/html/sith/
+```
+
+## Configuración de red (VirtualBox)
+
+Se configuró Port Forwarding para permitir el acceso desde el host:
+
+| Host Port | Guest Port | Descripción |
+|-----------:|-----------:|------------|
+| 8080      | 8080       | Sitio Jedi  |
+| 9090      | 9090       | Sitio Sith  |
+
+URLs desde el host:
+
+- http://localhost:8080 → Jedi
+- http://localhost:9090 → Sith
+
+Ambos devuelven HTTP 200 OK cuando están correctamente desplegados.
+
+## Justificación técnica
+
+- Ubuntu Server: ligero y adecuado para entornos de producción (sin GUI).
+- Nginx: alto rendimiento con archivos estáticos y arquitectura asíncrona.
+- Separación por bloques `server`: modularidad y mantenimiento más sencillo (dos sitios con configuración similar).
+- Port forwarding: permite acceder a la VM desde la máquina física.
